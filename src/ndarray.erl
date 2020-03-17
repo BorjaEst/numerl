@@ -34,16 +34,20 @@
 %% @end
 %%--------------------------------------------------------------------
 -spec new(Shape :: shape(), Buffer :: buffer()) ->
-	NDArray :: ndarray().
+	NdArray :: ndarray().
 new(Shape, Buffer) ->
 	#ndarray{
     shape = Shape,
-    buffer = Buffer}.
+    buffer = Buffer}. %TODO, set the size of the buffer to the defined on shape 
 
-
-
-
-
+%%--------------------------------------------------------------------
+%% @doc Returns the ndarray shape.
+%% @end
+%%--------------------------------------------------------------------
+-spec shape(NdArray :: ndarray()) ->
+  Shape :: shape().
+shape(NdArray) -> 
+  NdArray#ndarray.shape.
 
 
 
