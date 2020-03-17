@@ -18,11 +18,9 @@
 -type shape() :: [integer()].
 -type buffer() :: array:array().
 
--define(DEFAULT_DTYPE, float).
--define(DEFAULT_BUFFER, array:new()).
 -record(ndarray, {
   shape :: shape(),
-  buffer = ?DEFAULT_BUFFER :: buffer()
+  buffer :: buffer()
 }).
 -type ndarray() :: #ndarray{}.
 
