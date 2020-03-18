@@ -87,6 +87,5 @@ each_test() ->
     ?assertEqual([1,3,5,7,9], each(2, Seq9, 1)),
     ?assertEqual([2,4,6,8], each(2, Seq9, 2)),
     ?assertEqual([2,5,8], each(3, Seq9, 2)),
-    ?assertEqual([0,9], each(9, Seq9, 0)),
-    ok.
+    ?assertEqual([0,9], each(9, Seq9, 0)).
 
