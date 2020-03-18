@@ -37,7 +37,7 @@ sum_test() ->
 %%--------------------------------------------------------------------
 -spec mult(List :: [number()]) -> 
     number().
-mult([H, Rest]) -> 
+mult([H | Rest]) -> 
     H * mult(Rest);
 mult([]) -> 
     1.
