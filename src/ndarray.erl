@@ -69,6 +69,18 @@ shape(NdArray) ->
 size(NdArray) -> 
   array:size(NdArray#ndarray.buffer).
 
+
+%%--------------------------------------------------------------------
+%% @doc Returns the ndarray buffer.
+%% @end
+%%--------------------------------------------------------------------
+-spec buffer(NdArray :: ndarray()) ->
+  Buffer :: buffer().
+buffer(NdArray) -> 
+  NdArray#ndarray.buffer.
+
+
+
 %%--------------------------------------------------------------------
 %% @doc Reshapes an array. 
 %% One shape dimension can be -1. In this case, the value is inferred 
