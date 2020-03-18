@@ -99,6 +99,7 @@ reshape(NdArray, Shape) ->
 %%% Internal functions
 %%%===================================================================
 
+%%--------------------------------------------------------------------
 calc_shape([N | Rest], Size, Acc) when N > 0-> 
   calc_shape(Rest, Size div N, [N | Acc]);
 calc_shape([-1 | Rest], Size, Acc) ->
