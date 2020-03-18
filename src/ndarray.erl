@@ -42,9 +42,12 @@ new(Shape, Array) ->
     buffer = Buffer}. 
 
 new_test() ->
-  Array = [[[1,2],[3,4]],[[5,6],[7,8]]],
+  Array = [[[1,2],
+            [3,4]],
+           [[5,6],
+            [7,8]]],
   Shape = [2,2,2],
-  Buffer = array:from_list(list:flatten(Array)), 
+  Buffer = array:from_list(lists:flatten(Array)), 
   NdArray = new(Shape, Buffer), 
   ?assertEqual(8, size(NdArray)).
 
