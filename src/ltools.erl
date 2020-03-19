@@ -68,6 +68,25 @@ drop_test() ->
     ?assertError(function_clause, drop(length(Seq9)+1, Seq9)).
 
 %%--------------------------------------------------------------------
+%% @doc Returns a list with the list positions of an element.
+%% @end
+%%--------------------------------------------------------------------
+-spec pos(Elem :: term(), List :: [term()]) -> 
+    Positions :: [integer()].
+pos(Elem, List) -> 
+    ElemN = lists:zip(List, 
+                      lists:seq(1, length(List))),
+    proplists:append_values(Elem, ElemN).
+
+pos_test() -> 
+    List1 = [a,b,c,d,e,a,a,b,z],
+    ?assertEqual([1,6,7        ], pos(a, List1)),
+    ?assertEqual([2,8          ], pos(b, List1)),
+    ?assertEqual([3            ], pos(c, List1)),
+    ?assertEqual([             ], pos(y, List1)),
+    ?assertEqual([length(List1)], pos(z, List1)).
+
+%%--------------------------------------------------------------------
 %% @doc Gets the list elements using a list of indexes.
 %% @end
 %%--------------------------------------------------------------------
