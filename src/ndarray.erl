@@ -13,10 +13,11 @@
 
 %% API
 %%-export([]).
--type_export([ndarray/0]).
+-type_export([ndarray/0, shape/0, buffer/0, index/0]).
 
 -type shape() :: [integer()].
--type buffer() :: array:array().
+-type buffer() :: [number()].
+-type index() :: integer() | ':'.
 
 -record(ndarray, {
   shape :: shape(),
@@ -33,23 +34,12 @@
 %% @doc Creates a multidimensional array from a list of lists.
 %% @end
 %%--------------------------------------------------------------------
--spec new(Shape :: shape(), Array :: array:array()) ->
+-spec new(Shape :: shape(), Buffer :: buffer()) ->
 	NdArray :: ndarray().
-new(Shape, Array) ->
-  Buffer = array:resize(ltools:mult(Shape), Array),
+new(Shape, Buffer) ->
 	#ndarray{
     shape = Shape,
     buffer = Buffer}. 
-
-new_test() ->
-  Array = [[[1,2],
-            [3,4]],
-           [[5,6],
-            [7,8]]],
-  Shape = [2,2,2],
-  Buffer = array:from_list(lists:flatten(Array)), 
-  NdArray = new(Shape, Buffer), 
-  ?assertEqual(8, size(NdArray)).
 
 %%--------------------------------------------------------------------
 %% @doc Returns the ndarray shape.
@@ -67,8 +57,17 @@ shape(NdArray) ->
 -spec size(NdArray :: ndarray()) ->
   Size :: integer().
 size(NdArray) -> 
-  array:size(NdArray#ndarray.buffer).
+  ltools:mult(NdArray#ndarray.shape).
 
+size_test() ->
+  Array = [[[1,2],
+            [3,4]],
+           [[5,6],
+            [7,8]]],
+  Shape = [2,2,2],
+  Buffer = lists:flatten(Array), 
+  NdArray = new(Shape, Buffer), 
+  ?assertEqual(8, size(NdArray)).
 
 %%--------------------------------------------------------------------
 %% @doc Returns the ndarray buffer.
@@ -78,8 +77,6 @@ size(NdArray) ->
   Buffer :: buffer().
 buffer(NdArray) -> 
   NdArray#ndarray.buffer.
-
-
 
 %%--------------------------------------------------------------------
 %% @doc Reshapes an array. 
@@ -92,6 +89,29 @@ buffer(NdArray) ->
 reshape(NdArray, Shape) ->
   NewShape = calc_shape(Shape, size(NdArray), []),
   NdArray#ndarray{shape = NewShape}.
+
+
+
+%%--------------------------------------------------------------------
+%% @doc x
+%% @end
+%%--------------------------------------------------------------------
+-spec get(NdArray :: ndarray(), Indexes :: [index()]) ->
+  NdArray :: ndarray().
+get(NdArray, Indexes) ->
+  ok.
+
+
+%%--------------------------------------------------------------------
+%% @doc Reduce a NdArray along the given axis. 
+%% @end
+%%--------------------------------------------------------------------
+-spec reduce(NdArray :: ndarray(), Fun :: function(), 
+             Axis :: integer()) ->
+  NdArray :: ndarray().
+reduce(NdArray, Fun, Axis) ->
+  ok.
+
 
 
 
