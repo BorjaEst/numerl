@@ -68,7 +68,7 @@ drop_test() ->
     ?assertError(function_clause, drop(length(Seq9)+1, Seq9)).
 
 %%--------------------------------------------------------------------
-%% @doc Gets the elements from a list from a list of indexes.
+%% @doc Gets the list elements using a list of indexes.
 %% @end
 %%--------------------------------------------------------------------
 -spec get(Indexes :: [integer()], List1 :: [term()]) -> 
