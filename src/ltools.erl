@@ -80,11 +80,35 @@ pos(Elem, List) ->
 
 pos_test() -> 
     List1 = [a,b,c,d,e,a,a,b,z],
+    % Index= 1,2,3,4,5,6,7,8,9
     ?assertEqual([1,6,7        ], pos(a, List1)),
     ?assertEqual([2,8          ], pos(b, List1)),
     ?assertEqual([3            ], pos(c, List1)),
     ?assertEqual([             ], pos(y, List1)),
     ?assertEqual([length(List1)], pos(z, List1)).
+
+%%--------------------------------------------------------------------
+%% @doc Splits a list into a list using an index list.
+%% @end
+%%--------------------------------------------------------------------
+-spec split(Indexes :: [integer()], List :: [term()]) -> 
+    ListOfLists :: [[term()]].
+split(Indexes, List) -> 
+    split(Indexes, List, 0).
+
+split([I|Ix], List, P) -> 
+    {Split, Rest} = lists:split(I-P, List),
+    [Split | split(Ix, Rest, I)];
+split(    [], Rest, _) -> [Rest];
+split(     _,   [], _) -> [].
+
+split_test() -> 
+    Seq9 = lists:seq(1,9),
+    ?assertError(badarg, split([-1], Seq9)),
+    ?assertEqual([[],Seq9], split([0], Seq9)),
+    ?assertEqual([[hd(Seq9)],tl(Seq9)], split([1], Seq9)),
+    ?assertEqual([[1],[2,3],[4,5],[6,7,8,9]], split([1,3,5], Seq9)),
+    ?assertEqual([Seq9,[]], split([9], Seq9)).
 
 %%--------------------------------------------------------------------
 %% @doc Gets the list elements using a list of indexes.
