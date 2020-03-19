@@ -28,7 +28,7 @@ sum(List) ->
     lists:sum(List).
 
 sum_test() -> 
-    ?assertEqual(10, sum([1, 2, 3, 4])),
+    ?assertEqual(10,  sum([1, 2, 3, 4])),
     ?assertEqual(3.0, sum([1, 1.0, 2, -1])).
 
 %%--------------------------------------------------------------------
@@ -43,7 +43,7 @@ mult([]) ->
     1.
 
 mult_test() -> 
-    ?assertEqual(24, mult([1, 2, 3, 4])),
+    ?assertEqual(24,   mult([1, 2, 3, 4])),
     ?assertEqual(-2.0, mult([1, 1.0, 2, -1])).
 
 %%--------------------------------------------------------------------
@@ -60,12 +60,12 @@ drop(1, [_      |Xs])             ->          Xs .
 
 drop_test() -> 
     Seq9 = lists:seq(1,9),
-    ?assertEqual(tl(Seq9), drop(1, Seq9)),
-    ?assertEqual([1,3,4,5,6,7,8,9], drop(2, Seq9)),
-    ?assertEqual([1,2,3,4,5,7,8,9], drop(6, Seq9)),
+    ?assertEqual(tl(Seq9),             drop(1, Seq9)),
+    ?assertEqual([1,3,4,5,6,7,8,9],    drop(2, Seq9)),
+    ?assertEqual([1,2,3,4,5,7,8,9],    drop(6, Seq9)),
     ?assertEqual(lists:droplast(Seq9), drop(length(Seq9), Seq9)),
-    ?assertError(function_clause, drop(0, Seq9)),
-    ?assertError(function_clause, drop(length(Seq9)+1, Seq9)).
+    ?assertError(function_clause,      drop(0, Seq9)),
+    ?assertError(function_clause,      drop(length(Seq9)+1, Seq9)).
 
 %%--------------------------------------------------------------------
 %% @doc Returns a list with the list positions of an element.
@@ -104,12 +104,12 @@ split(     _,   [], _) -> [].
 
 split_test() -> 
     Seq9 = lists:seq(1,9),
-    ?assertError(badarg, split([-1], Seq9)),
-    ?assertEqual([[],Seq9], split([0], Seq9)),
-    ?assertEqual([Seq9], split([], Seq9)),
-    ?assertEqual([[hd(Seq9)],tl(Seq9)], split([1], Seq9)),
+    ?assertError(badarg,                      split([-1], Seq9)),
+    ?assertEqual([[],Seq9],                   split([0], Seq9)),
+    ?assertEqual([Seq9],                      split([], Seq9)),
+    ?assertEqual([[hd(Seq9)],tl(Seq9)],       split([1], Seq9)),
     ?assertEqual([[1],[2,3],[4,5],[6,7,8,9]], split([1,3,5], Seq9)),
-    ?assertEqual([Seq9,[]], split([9], Seq9)).
+    ?assertEqual([Seq9,[]],                   split([9], Seq9)).
 
 %%--------------------------------------------------------------------
 %% @doc Gets the list elements using a list of indexes.
@@ -148,7 +148,7 @@ replace_test() ->
     Seq4 = lists:seq(1,4),
     ?assertEqual([1,2,3,9], replace([{4,9}], Seq4)),
     ?assertEqual([2,3,3,4], replace([{1,2},{2,3}], Seq4)),
-    ?assertEqual(Seq4, replace([{a,b}], Seq4)).
+    ?assertEqual(Seq4,      replace([{a,b}], Seq4)).
 
 %%--------------------------------------------------------------------
 %% @doc Creates a sublist of every nth elements.
@@ -165,12 +165,12 @@ each(_,              _, _)             -> [].
 
 each_test() -> 
     Seq9 = lists:seq(1,9),
-    ?assertEqual(Seq9, each(1, Seq9, 1)),
-    ?assertEqual(tl(Seq9), each(1, Seq9, 2)),
+    ?assertEqual(Seq9,        each(1, Seq9, 1)),
+    ?assertEqual(tl(Seq9),    each(1, Seq9, 2)),
     ?assertEqual([1,3,5,7,9], each(2, Seq9, 1)),
-    ?assertEqual([2,4,6,8], each(2, Seq9, 2)),
-    ?assertEqual([3,5,7,9], each(2, Seq9, 3)),
-    ?assertEqual([2,5,8], each(3, Seq9, 2)),
-    ?assertEqual([1,9], each(8, Seq9, 1)),
-    ?assertEqual([2,8], each(6, Seq9, 2)).
+    ?assertEqual([2,4,6,8],   each(2, Seq9, 2)),
+    ?assertEqual([3,5,7,9],   each(2, Seq9, 3)),
+    ?assertEqual([2,5,8],     each(3, Seq9, 2)),
+    ?assertEqual([1,9],       each(8, Seq9, 1)),
+    ?assertEqual([2,8],       each(6, Seq9, 2)).
 
