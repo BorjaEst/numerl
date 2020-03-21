@@ -5,6 +5,9 @@
 %%% Created :
 %%%------------------------------------------------------------------
 
+-type axis() :: integer().
+
 -define(AXIS_0, 0).
 -define(AXIS_1, 1).
 -define(AXIS_2, 2).
+-define(AXIS_3, 3).
