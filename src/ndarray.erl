@@ -136,13 +136,14 @@ get_3D_test() ->
                  get([':',  [1],':'], Array3D)).
 
 %%--------------------------------------------------------------------
-%% @doc Deletes all dimensions from shape with length 1. 
+%% @doc Deletes all dimensions with shape length == 1. 
 %% @end
 %%--------------------------------------------------------------------
 -spec reduce(NdArray :: ndarray()) ->
   NdArray :: ndarray().
 reduce(NdArray) ->
-  ok.
+  NewShape = [X || X <- shape(NdArray), X /= 1],
+  new(NewShape, buffer(NdArray)).
 
 reduce_test() -> 
   Array4D = new([1,2,1,2], lists:seq(1,4)), 
