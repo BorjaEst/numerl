@@ -80,6 +80,27 @@ drop_test() ->
     ?assertError(function_clause,      drop(0, Seq9)),
     ?assertError(function_clause,      drop(length(Seq9)+1, Seq9)).
 
+
+%%--------------------------------------------------------------------
+%% @doc Sets the nth element of a list to an specific term.
+%% @end
+%%--------------------------------------------------------------------
+-spec setnth(N :: integer(), List1 :: [term()], New :: term()) -> 
+    List2 :: [term()].
+setnth(I, [A,B,C,D|Xs], X) when I>=5 -> [A,B,C,D|setnth(I-4, Xs, X)];
+setnth(4, [A,B,C,_|Xs], X)           -> [A,B,C,X|Xs];
+setnth(3, [A,B,_  |Xs], X)           -> [A,B,X  |Xs];
+setnth(2, [A,_    |Xs], X)           -> [A,X    |Xs];
+setnth(1, [_      |Xs], X)           -> [X      |Xs].
+
+setnth_test() -> 
+    Seq7 = lists:seq(1,7),
+    ?assertError(function_clause, setnth(             0, Seq7, a)),
+    ?assertEqual([a,2,3,4,5,6,7], setnth(             1, Seq7, a)),
+    ?assertEqual([1,a,3,4,5,6,7], setnth(             2, Seq7, a)),
+    ?assertEqual([1,2,3,4,5,6,a], setnth(  length(Seq7), Seq7, a)),
+    ?assertError(function_clause, setnth(1+length(Seq7), Seq7, a)).
+
 %%--------------------------------------------------------------------
 %% @doc Returns a list with the list positions of an element.
 %% @end
