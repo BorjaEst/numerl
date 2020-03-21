@@ -15,9 +15,9 @@
 %%-export([]).
 -type_export([ndarray/0, shape/0, buffer/0, index/0]).
 
--type shape() :: [integer()].
+-type index()  :: [integer()] | integer() | ':'.
+-type shape()  :: [integer()].
 -type buffer() :: [number()].
--type index() :: integer() | ':'.
 
 -record(ndarray, {
   shape :: shape(),
@@ -90,110 +90,50 @@ reshape(NdArray, Shape) ->
   NewShape = calc_shape(Shape, size(NdArray), []),
   NdArray#ndarray{shape = NewShape}.
 
-
-
 %%--------------------------------------------------------------------
-%% @doc x
+%% @doc Gets a sub ndarray indicated by the Indexes. An index can be: 
+%% An 'integer()' to specify a unique position; A ['integer()'] to 
+%% specify more than one position in that dimension; The atom ':' to
+%% indicate all the positions from that dimension.  
 %% @end
 %%--------------------------------------------------------------------
 -spec get(Indexes :: [index()], NdArray :: ndarray()) ->
   NdArray :: ndarray().
 get(Indexes, NdArray) ->
   Shape = shape(NdArray),
-  Buffer = buffer(NdArray),
-
-  From = calc_from(Indexes, Shape),
-  Untl = calc_untl(Indexes, Shape),
-  Incr = calc_incr(Indexes, Shape),
-
-%   Shape = shape_from_indexing(Indexes),
-%   Buffer = get(lists:seq(From, To, Incr), buffer(NdArray)),
-
-
+  BufferIndexes = lists:flatten(buffer_index(Indexes, Shape)),
   new(shape_indexing(Indexes, Shape), 
-      ltools:get(lists:seq(From, Untl, Incr), Buffer)).
-  % ok.
+      ltools:get(BufferIndexes, buffer(NdArray))).
 
 get_2D_test() -> 
   Array2D = new([3,2], lists:seq(1,6)), 
   % Check 1st dimension get
   ?assertEqual(new([3,1], lists:seq(1,3,1)), get([':',0], Array2D)),
   ?assertEqual(new([3,1], lists:seq(4,6,1)), get([':',1], Array2D)),
-  ?assertError(badarg, get([':',2], Array2D)),
+  ?assertEqual(new([3,1],               []), get([':',2], Array2D)),
   % Check 2nd dimension get
   ?assertEqual(new([1,2], lists:seq(1,6,3)), get([0,':'], Array2D)),
   ?assertEqual(new([1,2], lists:seq(2,6,3)), get([1,':'], Array2D)),
   ?assertEqual(new([1,2], lists:seq(3,6,3)), get([2,':'], Array2D)).
 
-
-
-
-calc_incr(Ix, Sx) -> 
-  [PreDim, _] = semicolon_split(Ix, Sx),
-  ltools:mult(PreDim).
-
-calc_incr_2D_test() -> 
-  Shape2D = [3,2],
-  ?assertEqual(1, calc_incr([  0,0], Shape2D)),
-  ?assertEqual(3, calc_incr([  2,0], Shape2D)),
-  ?assertEqual(4, calc_incr([  0,1], Shape2D)),
-  ?assertEqual(6, calc_incr([  2,1], Shape2D)),
-  ?assertEqual(1, calc_incr([0,':'], Shape2D)),
-  ?assertEqual(3, calc_incr([2,':'], Shape2D)),
-  ?assertEqual(1, calc_incr([':',0], Shape2D)),
-  ?assertEqual(4, calc_incr([':',1], Shape2D)).
-
-calc_incr_3D_test() -> 
-  Shape3D = [4,3,2],
-  ?assertEqual( 1, calc_incr([  0,0,0], Shape3D)),
-  ?assertEqual( 4, calc_incr([  3,0,0], Shape3D)),
-  ?assertEqual( 9, calc_incr([  0,2,0], Shape3D)),
-  ?assertEqual(18, calc_incr([  1,1,1], Shape3D)),
-  ?assertEqual( 1, calc_incr([0,':',0], Shape3D)),
-  ?assertEqual( 3, calc_incr([2,':',0], Shape3D)),
-  ?assertEqual(13, calc_incr([':',0,1], Shape3D)),
-  ?assertEqual(17, calc_incr([':',1,1], Shape3D)).
-
-
-
-
-
-
-semicolon_split(Indexes, Shape) -> 
-  case ltools:pos(':', Indexes) of
-    []    -> [[], Indexes];
-    Split -> ltools:split([X-1 || X <- Split], Shape)
-  end.
-
-semicolon_split_test() ->
-  ?assertEqual([[],[1,2,3,4]], semicolon_split([1,2,3,4], [1,2,3,4])),
-  ?assertEqual([[1,2],[3,4]], semicolon_split([1,2,':',4], [1,2,3,4])),
-  ?assertEqual([[1],[2,3,4]], semicolon_split([1,':',3,4], [1,2,3,4])).
-
-
-
-
-
-
-
-shape_indexing([':'|Ix], [S|Shape]) -> [S|shape_indexing(Ix, Shape)];
-shape_indexing([  _|Ix], [_|Shape]) -> [1|shape_indexing(Ix, Shape)];
-shape_indexing(      [],        []) -> [].
-
-shape_indexing_test() -> 
-  Shape = [1,2,3,4,5],
-  Indx1 = [':',1,':',2,4],
-  ?assertEqual([1,1,3,1,1], shape_indexing(Indx1, Shape)),
-  Indx2 = [':',':',':',':',4],
-  ?assertEqual([1,2,3,4,1], shape_indexing(Indx2, Shape)),
-  Indx3 = [1,1,1,':',':'],
-  ?assertEqual([1,1,1,4,5], shape_indexing(Indx3, Shape)).
-
-
-
-
-
-
+get_3D_test() -> 
+    Array3D = new([4,3,2], lists:seq(1,24)), 
+    % Array = [[[ 1, 2, 3, 4],[ 5, 6, 7, 8],[ 9,10,11,12]],
+    %          [[13,14,15,16],[17,18,19,20],[21,22,23,24]]],
+    ?assertEqual(           Array3D, get([':',':',':'], Array3D)),
+    ?assertEqual(new([1,1,1], [24]), get([3,2,1], Array3D)),
+    ?assertEqual(new([1,1,1], [18]), get([1,1,1], Array3D)),
+    ?assertEqual(new([1,1,1], [ 1]), get([0,0,0], Array3D)),
+    ?assertEqual(new([  4,1,1], [17,18,19,20]),                 
+                 get([':',1,1], Array3D)),
+    ?assertEqual(new([  4,    1,  2], [ 9,10,11,12,21,22,23,24]), 
+                 get([':',    2,':'], Array3D)),
+    ?assertEqual(new([  4,    2,  1], [ 1, 2, 3, 4, 5, 6, 7, 8]),    
+                 get([':',[0,1],  0], Array3D)),
+    ?assertEqual(new([  4,    2,  1], [ 1, 2, 3, 4, 9,10,11,12]),   
+                 get([':',[0,2],  0], Array3D)),
+    ?assertEqual(new([  4,    1,  2], [ 5, 6, 7, 8,17,18,19,20]), 
+                 get([':',  [1],':'], Array3D)).
 
 %%--------------------------------------------------------------------
 %% @doc Deletes all dimensions from shape with length 1. 
@@ -241,55 +181,51 @@ calc_shape_test() ->
   ?assertError(badarg, calc_shape([2, 3, 3], Size, [])).
 
 %%--------------------------------------------------------------------
-calc_from([':'|Nx], [DN|DNx]) -> calc_from([0|Nx], [DN|DNx]);
-calc_from([  N|Nx], [DN|DNx]) -> 1 + N + DN*(calc_from(Nx, DNx)-1);
-calc_from(    [],       [])   -> 1.
+shape_indexing([  L|Ix], [_|Shape]) when is_list(L) -> 
+                               [length(L)|shape_indexing(Ix, Shape)];
+shape_indexing([  I|Ix], [_|Shape]) when is_integer(I) -> 
+                                       [1|shape_indexing(Ix, Shape)];
+shape_indexing([':'|Ix], [S|Shape]) -> [S|shape_indexing(Ix, Shape)];
+shape_indexing(      [],        []) -> [].
 
-calc_from_2D_test() -> 
-  Shape2D = [3,2],
-  ?assertEqual(1, calc_from([  0,0], Shape2D)),
-  ?assertEqual(3, calc_from([  2,0], Shape2D)),
-  ?assertEqual(4, calc_from([  0,1], Shape2D)),
-  ?assertEqual(6, calc_from([  2,1], Shape2D)),
-  ?assertEqual(1, calc_from([0,':'], Shape2D)),
-  ?assertEqual(3, calc_from([2,':'], Shape2D)),
-  ?assertEqual(1, calc_from([':',0], Shape2D)),
-  ?assertEqual(4, calc_from([':',1], Shape2D)).
-
-calc_from_3D_test() -> 
-  Shape3D = [4,3,2],
-  ?assertEqual( 1, calc_from([  0,0,0], Shape3D)),
-  ?assertEqual( 4, calc_from([  3,0,0], Shape3D)),
-  ?assertEqual( 9, calc_from([  0,2,0], Shape3D)),
-  ?assertEqual(18, calc_from([  1,1,1], Shape3D)),
-  ?assertEqual( 1, calc_from([0,':',0], Shape3D)),
-  ?assertEqual( 3, calc_from([2,':',0], Shape3D)),
-  ?assertEqual(13, calc_from([':',0,1], Shape3D)),
-  ?assertEqual(17, calc_from([':',1,1], Shape3D)).
+shape_indexing_test() -> 
+  Shape = [1,2,3,4,5],
+  Indx1 = [':',1,':',2,4],
+  ?assertEqual([1,1,3,1,1], shape_indexing(Indx1, Shape)),
+  Indx2 = [':',':',':',':',4],
+  ?assertEqual([1,2,3,4,1], shape_indexing(Indx2, Shape)),
+  Indx3 = [1,1,1,':',':'],
+  ?assertEqual([1,1,1,4,5], shape_indexing(Indx3, Shape)).
 
 %%--------------------------------------------------------------------
-calc_untl([':'|Nx], [DN|DNx]) -> calc_untl([DN-1|Nx], [DN|DNx]);
-calc_untl([  N|Nx], [DN|DNx]) -> 1 + N + DN*(calc_untl(Nx, DNx)-1);
-calc_untl(    [],       [])   -> 1.
+buffer_index(Ix, Dx) -> 
+    buffer_index(lists:reverse(Ix), lists:reverse(Dx), 0).
 
-calc_untl_2D_test() -> 
-  Shape2D = [3,2],
-  ?assertEqual(1, calc_untl([  0,0], Shape2D)),
-  ?assertEqual(3, calc_untl([  2,0], Shape2D)),
-  ?assertEqual(4, calc_untl([  0,1], Shape2D)),
-  ?assertEqual(6, calc_untl([  2,1], Shape2D)),
-  ?assertEqual(4, calc_untl([0,':'], Shape2D)),
-  ?assertEqual(6, calc_untl([2,':'], Shape2D)),
-  ?assertEqual(3, calc_untl([':',0], Shape2D)),
-  ?assertEqual(6, calc_untl([':',1], Shape2D)).
+buffer_index([':'|Ix], [D|Dx], Acc) -> 
+    I = lists:seq(0,D-1,1),
+    buffer_index([I|Ix], [D|Dx], Acc);
+buffer_index([  I|Ix], [D|Dx], Acc) when is_list(I) -> 
+    [buffer_index(Ix, Dx, Acc*D+X) || X <-I];
+buffer_index([  I|Ix], [D|Dx], Acc) -> 
+    [buffer_index(Ix, Dx, Acc*D+I)];
+buffer_index(      [],     [], Acc) ->  
+    Acc + 1.
 
-calc_untl_3D_test() -> 
-  Shape3D = [4,3,2],
-  ?assertEqual( 1, calc_untl([  0,0,0], Shape3D)),
-  ?assertEqual( 4, calc_untl([  3,0,0], Shape3D)),
-  ?assertEqual( 9, calc_untl([  0,2,0], Shape3D)),
-  ?assertEqual(18, calc_untl([  1,1,1], Shape3D)),
-  ?assertEqual( 9, calc_untl([0,':',0], Shape3D)),
-  ?assertEqual(11, calc_untl([2,':',0], Shape3D)),
-  ?assertEqual(16, calc_untl([':',0,1], Shape3D)),
-  ?assertEqual(20, calc_untl([':',1,1], Shape3D)).
+buffer_index_test() -> 
+    Dim = [4,3,2],
+    Array = [[[ 1, 2, 3, 4],[ 5, 6, 7, 8],[ 9,10,11,12]],
+             [[13,14,15,16],[17,18,19,20],[21,22,23,24]]],
+    ?assertEqual(Array, buffer_index([':',':',':'], Dim)),
+    ?assertEqual([[[24]]], buffer_index([  3,  2,  1], Dim)),
+    ?assertEqual([[[18]]], buffer_index([  1,  1,  1], Dim)),
+    ?assertEqual([[[ 1]]], buffer_index([  0,  0,  0], Dim)),
+    ?assertEqual([[[17,18,19,20]]],                 
+                 buffer_index([':',   1,   1], Dim)),
+    ?assertEqual([[[ 9,10,11,12]],[[21,22,23,24]]], 
+                 buffer_index([':',   2, ':'], Dim)),
+    ?assertEqual([[[ 1, 2, 3, 4],[ 5, 6, 7, 8]]],   
+                 buffer_index([':',[0,1],  0], Dim)),
+    ?assertEqual([[[ 1, 2, 3, 4],[ 9,10,11,12]]],   
+                 buffer_index([':',[0,2],  0], Dim)),
+    ?assertEqual([[[ 5, 6, 7, 8]],[[17,18,19,20]]], 
+                 buffer_index([':',  [1],':'], Dim)).
