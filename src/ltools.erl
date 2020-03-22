@@ -5,13 +5,14 @@
 %%% Created :
 %%%-------------------------------------------------------------------
 -module(ltools).
--compile([export_all, nowarn_export_all]). %% TODO: To delete after build
 
 -include_lib("kernel/include/logger.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 %% API
-%%-export([]).
+-export([sum/1, mult/1, mean/1]).
+-export([drop/2, setnth/3, pos/2]).
+-export([split/2, get/2, replace/2, each/3]).
 
 
 %%%===================================================================
