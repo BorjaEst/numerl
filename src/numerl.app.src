@@ -1,13 +1,17 @@
 {application, numerl,
- [{description, "An OTP library"},
-  {vsn, "0.1.0"},
+ [{description, "Scientific computing with Erlang"},
+  {vsn, "1.0.0"},
   {registered, []},
   {applications,
    [kernel,
     stdlib
    ]},
   {env,[]},
-  {modules, []},
+  {modules, [
+      ltools,
+      ndarray,
+      numerl
+  ]},
 
   {licenses, ["Apache 2.0"]},
   {links, []}
