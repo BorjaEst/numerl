@@ -6,14 +6,14 @@
 %%%-------------------------------------------------------------------
 -module(ndarray).
 -compile({no_auto_import, [size/1, apply/3]}).
--compile([export_all, nowarn_export_all]). %% TODO: To delete after build
 
 -include_lib("axis.hrl").
 -include_lib("kernel/include/logger.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 %% API
-%%-export([]).
+-export([new/2, get/2, apply/3, reshape/2, reduce/1]).
+-export([ndim/1, shape/1, size/1, data/1]).
 -type_export([ndarray/0, shape/0, buffer/0, index/0]).
 
 -type index()  :: [integer()] | integer() | ':'.
@@ -43,6 +43,15 @@ new(Shape, Buffer) ->
 	#ndarray{
     shape = Shape,
     buffer = Buffer}. 
+
+%%--------------------------------------------------------------------
+%% @doc Returns the number of axes (dimensions) of the array.
+%% @end
+%%--------------------------------------------------------------------
+-spec ndim(NdArray :: ndarray()) ->
+  NumberOfDimensions :: integer().
+ndim(NdArray) -> 
+  length(NdArray#ndarray.shape).
 
 %%--------------------------------------------------------------------
 %% @doc Returns the ndarray shape.
@@ -76,9 +85,9 @@ size_test() ->
 %% @doc Returns the ndarray buffer.
 %% @end
 %%--------------------------------------------------------------------
--spec buffer(NdArray :: ndarray()) ->
+-spec data(NdArray :: ndarray()) ->
   Buffer :: buffer().
-buffer(NdArray) -> 
+data(NdArray) -> 
   NdArray#ndarray.buffer.
 
 %%--------------------------------------------------------------------
@@ -107,7 +116,7 @@ get(Indexes, NdArray) ->
   Shape = shape(NdArray),
   BufferIndexes = lists:flatten(buffer_index(Indexes, Shape)),
   new(shape_indexing(Indexes, Shape), 
-      ltools:get(BufferIndexes, buffer(NdArray))).
+      ltools:get(BufferIndexes, data(NdArray))).
 
 get_2D_test() -> 
   Array2D = new([3,2], lists:seq(1,6)), 
@@ -150,9 +159,9 @@ get_3D_test() ->
   NdArray :: ndarray().
 apply(Fun, NdArray, Axis) ->
   Shape = shape(NdArray),
-  Buffer = buffer(NdArray),
+  Buffer = data(NdArray),
   new(ltools:setnth(Axis+1, Shape, 1),
-      lists:map(Fun, vect_buffer(Axis, Shape, Buffer))).
+      lists:map(Fun, vect_data(Axis, Shape, Buffer))).
 
 apply_3D_test() -> 
   Array3D = new([4,3,2], lists:seq(1,24)), 
@@ -197,11 +206,11 @@ apply_4D_test() ->
   NdArray :: ndarray().
 reduce(NdArray) ->
   NewShape = [X || X <- shape(NdArray), X /= 1],
-  new(NewShape, buffer(NdArray)).
+  new(NewShape, data(NdArray)).
 
 reduce_test() -> 
   Array4D = new([1,2,1,2], lists:seq(1,4)), 
-  ?assertEqual(new([2,2], buffer(Array4D)), reduce(Array4D)).
+  ?assertEqual(new([2,2], data(Array4D)), reduce(Array4D)).
 
 
 %%%===================================================================
@@ -286,7 +295,7 @@ buffer_index_test() ->
                  buffer_index([':',  [1],':'], Dim)).
 
 %%--------------------------------------------------------------------
-vect_buffer(Axis, Shape, Buffer) -> 
+vect_data(Axis, Shape, Buffer) -> 
     {DH, _} = lists:split(Axis+1, [1 | Shape]),
     DBunch = ltools:mult(DH),
     DAxis = lists:nth(Axis+1, Shape),
@@ -310,13 +319,13 @@ vect_buffer3D_test() ->
     Buffer = lists:seq(1,24),
     ?assertEqual([[ 4, 3, 2, 1],[ 8, 7, 6, 5],[12,11,10, 9],
                   [16,15,14,13],[20,19,18,17],[24,23,22,21]], 
-                 vect_buffer(0, Shape, Buffer)),
+                 vect_data(0, Shape, Buffer)),
     ?assertEqual([[ 9, 5, 1],[10, 6, 2],[11, 7, 3],[12, 8, 4],
                   [21,17,13],[22,18,14],[23,19,15],[24,20,16]], 
-                 vect_buffer(1, Shape, Buffer)),
+                 vect_data(1, Shape, Buffer)),
     ?assertEqual([[13, 1],[14, 2],[15, 3],[16, 4],[17, 5],[18, 6],
                   [19, 7],[20, 8],[21, 9],[22,10],[23,11],[24,12]], 
-                 vect_buffer(2, Shape, Buffer)).
+                 vect_data(2, Shape, Buffer)).
 
 vect_buffer4D_test() -> 
     Shape = [5,4,3,2],
@@ -324,5 +333,5 @@ vect_buffer4D_test() ->
     ?assertEqual([[X+Y
                     ||X<-lists:seq(60, 0,-60)]
                     ||Y<-lists:seq( 1,60,  1)], 
-                 vect_buffer(3, Shape, Buffer)).
+                 vect_data(3, Shape, Buffer)).
 
