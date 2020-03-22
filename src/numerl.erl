@@ -28,7 +28,7 @@
 -spec mean(NdArray :: ndarray:ndarray()) -> 
     Mean :: float().
 mean(NdArray) -> 
-    ltools:mean(ndarray:buffer(NdArray)).
+    ltools:mean(ndarray:data(NdArray)).
 
 -spec mean(NdArray :: ndarray:ndarray(), Axis :: integer()) -> 
     NdArray :: ndarray:ndarray().
