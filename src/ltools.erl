@@ -13,6 +13,7 @@
 -export([sum/1, mult/1, mean/1]).
 -export([drop/2, setnth/3, pos/2]).
 -export([split/2, get/2, replace/2, each/3]).
+-export([randnth/1, shuffle/1]).
 
 
 %%%===================================================================
@@ -208,4 +209,34 @@ each_test() ->
     ?assertEqual([2,5,8],     each(3, Seq9, 2)),
     ?assertEqual([1,9],       each(8, Seq9, 1)),
     ?assertEqual([2,8],       each(6, Seq9, 2)).
+
+%%--------------------------------------------------------------------
+%% @doc Returns a random element from a list.
+%% @end
+%%--------------------------------------------------------------------
+-spec randnth(List :: [term()]) -> 
+    Element :: term().
+randnth(List) -> 
+    lists:nth(rand:uniform(length(List)), List).
+
+randnth_test() -> 
+    Seq4 = lists:seq(1,4),
+    BigList = [randnth(Seq4) || _ <- lists:seq(1,100)],
+    ?assert(lists:member(1, BigList)),
+    ?assert(lists:member(2, BigList)),
+    ?assert(lists:member(3, BigList)),
+    ?assert(lists:member(4, BigList)).
+
+%%--------------------------------------------------------------------
+%% @doc Shuffles the elements of the list.
+%% @end
+%%--------------------------------------------------------------------
+-spec shuffle(List1 :: [term()]) -> 
+    List2 :: [term()].
+shuffle(List) -> 
+    [Y||{_,Y} <- lists:sort([{rand:uniform(), N} || N <- List])].
+
+shuffle_test() -> 
+    Seq9 = lists:seq(1,9),
+    ?assertNotEqual(Seq9, shuffle(Seq9)).
 
