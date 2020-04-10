@@ -228,6 +228,21 @@ randnth_test() ->
     ?assert(lists:member(4, BigList)).
 
 %%--------------------------------------------------------------------
+%% @doc Returns a random element from a list.
+%% @end
+%%--------------------------------------------------------------------
+-spec rand(List1 :: [term()], Probability :: float()) -> 
+    List2 :: [term()].
+rand(List, Probability) -> 
+    [X || X <- List, rand:uniform() < Probability].
+
+rand_test() -> 
+    Seq9 = lists:seq(1,9),
+    ?assertEqual([], rand(Seq9, 1.0) -- Seq9),
+    ?assertEqual([], rand(Seq9, 0.0)).
+
+
+%%--------------------------------------------------------------------
 %% @doc Shuffles the elements of the list.
 %% @end
 %%--------------------------------------------------------------------
