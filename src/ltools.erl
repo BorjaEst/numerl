@@ -13,7 +13,7 @@
 -export([sum/1, mult/1, mean/1]).
 -export([drop/2, setnth/3, pos/2]).
 -export([split/2, get/2, replace/2, each/3]).
--export([randnth/1, shuffle/1]).
+-export([randnth/1, shuffle/1, rand_scale/1]).
 
 
 %%%===================================================================
@@ -241,7 +241,6 @@ rand_test() ->
     ?assertEqual([], rand(Seq9, 1.0) -- Seq9),
     ?assertEqual([], rand(Seq9, 0.0)).
 
-
 %%--------------------------------------------------------------------
 %% @doc Shuffles the elements of the list.
 %% @end
@@ -254,4 +253,34 @@ shuffle(List) ->
 shuffle_test() -> 
     Seq9 = lists:seq(1,9),
     ?assertNotEqual(Seq9, shuffle(Seq9)).
+
+%%--------------------------------------------------------------------
+%% @doc Returns the element acording to a probability scalation.
+%% Example: [{a,0.1},{b,0.2}] -> a = 0.1%, b = 0.2%, {} = 0.7%
+%% @end
+%%--------------------------------------------------------------------
+-spec rand_scale(List :: [{X :: term(), Probability :: float()}]) -> 
+    X :: term() | {}.
+rand_scale(List) -> rand_scale(List, rand:uniform(), 0.0).
+
+rand_scale([{Term,Prob}|List], R, RAcc0) when is_float(Prob) -> 
+    case Prob + RAcc0 of 
+        RAcc1 when RAcc1 < R -> rand_scale(List, R, RAcc1);
+        _                    -> Term
+    end;
+rand_scale(                [], _, _) -> {};
+rand_scale([{   _,Prob}|   _], _, _) -> error({badarg, Prob}).
+
+rand_scale_test() -> 
+    ?assertEqual( a, rand_scale([{a,1.0},{b,0.0}])),
+    ?assertEqual( b, rand_scale([{a,0.0},{b,1.0}])),
+    ?assertEqual({}, rand_scale([{a,0.0},{b,0.0}])),
+    Seq1000 = lists:seq(1,1000),
+    RandSel = [ltools:rand_scale([{a,0.3},{b,0.3}]) || _ <- Seq1000],
+    ?assert(240 < length([ok ||  a <- RandSel])),
+    ?assert(360 > length([ok ||  a <- RandSel])),
+    ?assert(240 < length([ok ||  b <- RandSel])),
+    ?assert(360 > length([ok ||  b <- RandSel])),
+    ?assert(340 < length([ok || {} <- RandSel])),
+    ?assert(460 > length([ok || {} <- RandSel])).
 
