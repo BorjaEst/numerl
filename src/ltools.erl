@@ -13,7 +13,7 @@
 -export([sum/1, mult/1, mean/1]).
 -export([drop/2, setnth/3, pos/2]).
 -export([split/2, get/2, replace/2, each/3]).
--export([randnth/1, shuffle/1, rand_scale/1]).
+-export([randnth/1, rand/2, shuffle/1, rand_scale/1]).
 
 
 %%%===================================================================
@@ -228,7 +228,8 @@ randnth_test() ->
     ?assert(lists:member(4, BigList)).
 
 %%--------------------------------------------------------------------
-%% @doc Returns a random element from a list.
+%% @doc Returns a sublist where each element passed a random element 
+%% selection based on the probability number.
 %% @end
 %%--------------------------------------------------------------------
 -spec rand(List1 :: [term()], Probability :: float()) -> 
