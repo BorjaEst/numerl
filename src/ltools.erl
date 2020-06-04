@@ -13,7 +13,7 @@
 -export([sum/1, mult/1, mean/1]).
 -export([drop/2, setnth/3, pos/2]).
 -export([split/2, get/2, replace/2, each/3]).
--export([randnth/1, rand/2, shuffle/1, rand_scale/1]).
+-export([randnth/1, rand/2, rsplit/2, shuffle/1, rand_scale/1]).
 
 
 %%%===================================================================
@@ -241,6 +241,31 @@ rand_test() ->
     Seq9 = lists:seq(1,9),
     ?assertEqual([], rand(Seq9, 1.0) -- Seq9),
     ?assertEqual([], rand(Seq9, 0.0)).
+
+%%--------------------------------------------------------------------
+%% @doc Returns two lists where:
+%%  -List 1 is a sublist of random selected elements.
+%%  -List 2 are the remaining elements from the original list.
+%% The selection is based on the input probability number.
+%% @end
+%%--------------------------------------------------------------------
+-spec rsplit(List :: [term()], Probability :: float()) -> 
+    List2 :: [term()].
+rsplit(List, Probability) -> 
+    rsplit(lists:reverse(List), Probability, {[],[]}).
+
+rsplit([X|List], Probability, {Acc1,Acc2}) -> 
+    case rand:uniform() < Probability of 
+        true  -> rsplit(List, Probability, {[X|Acc1],    Acc2 });
+        false -> rsplit(List, Probability, {   Acc1 , [X|Acc2]})
+    end;
+rsplit([], _Probability, {Acc1,Acc2}) -> 
+    {Acc1,Acc2}.
+
+rsplit_test() -> 
+    Seq9 = lists:seq(1,9),
+    ?assertEqual({Seq9, []}, rsplit(Seq9, 1.0)),
+    ?assertEqual({[], Seq9}, rsplit(Seq9, 0.0)).
 
 %%--------------------------------------------------------------------
 %% @doc Shuffles the elements of the list.
